@@ -118,12 +118,28 @@ df["Classification"] = "C"
 df.loc[:int(n*0.10)-1, "Classification"] = "A"
 df.loc[int(n*0.10):int(n*0.25)-1, "Classification"] = "B"
 
+# Botón para descargar solo la clasificación ABC
+st.markdown("---")
+st.subheader("📥 Descargar Clasificación ABC")
+
+if st.button("Clasificar ABC"):
+    abc_export = df.copy()
+    abc_export = abc_export[['Location', 'Sitio', 'SubSite', 'Classification', 'Total_Score']]
+    st.dataframe(abc_export)
+
+    st.download_button(
+        "⬇️ Descargar CSV de Clasificación ABC",
+        abc_export.to_csv(index=False),
+        file_name="abc_classification.csv",
+        mime="text/csv"
+    )
+
 # Format LastCount_Date
 df['LastCount_Date'] = pd.to_datetime(df['LastCount_Date'].astype(str).str.strip(), dayfirst=True, errors='coerce')
 df['DaysSinceLastCount'] = (datetime.combine(st.session_state.get("selected_date", datetime.today()), datetime.min.time()) - df['LastCount_Date']).dt.days
 
 # Save classified CSV
-df.to_csv("normalized_data_with_ABC_classification.csv", index=False)
+#df.to_csv("normalized_data_with_ABC_classification.csv", index=False)
 
 # Enhanced classification rules with frequency limits
 def able_to_be_counted(row):
