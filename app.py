@@ -18,7 +18,7 @@ uploaded_file = st.file_uploader("Please upload the 'CycleCount-DataGatering.xls
 if uploaded_file is not None:
     try:
         xl = pd.ExcelFile(uploaded_file)
-        st.write("📄 Available sheet names:", xl.sheet_names)
+        st.write("📄 Available sheet names:", xl.name)
         st.stop()
     except Exception as e:
         st.error("❌ Failed to open Excel file.")
