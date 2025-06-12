@@ -124,7 +124,7 @@ st.subheader("📥 Descargar Clasificación ABC")
 
 if st.button("Clasificar ABC"):
     abc_export = df.copy()
-    abc_export = abc_export[['Location', 'Sitio', 'SubSite', 'AVGPrice', 'Transactions', 'Norm_AVGPrice', 'Norm_Transactions', 'Norm_AgeWeight', 'Classification', 'Total_Score']]
+    abc_export = abc_export[['Location', 'Sitio', 'SubSite', 'LastCount_Date', 'AVGPrice', 'Transactions', 'Norm_AVGPrice', 'Norm_Transactions', 'Norm_AgeWeight', 'Classification', 'Total_Score']]
     #st.dataframe(abc_export)
 
     st.download_button(
