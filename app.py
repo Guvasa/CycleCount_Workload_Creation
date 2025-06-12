@@ -13,7 +13,7 @@ from sklearn.preprocessing import MinMaxScaler
 import os
 
 st.subheader("📤 Upload Cycle Count Excel File")
-uploaded_file = st.file_uploader("Please upload the 'CycleCount-DataGatering.xlsm' file", type=["xlsx"])
+uploaded_file = st.file_uploader("Please upload the 'CycleCount-DataGatering.xlsm' file", type=["xlsm"])
 
 if uploaded_file is not None:
     try:
