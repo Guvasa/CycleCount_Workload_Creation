@@ -47,6 +47,10 @@ else:
     st.warning("Please upload the required Excel file to continue.")
     st.stop()
 
+# UI: Date input with default to today
+selected_date = st.date_input("Select today's date", value=datetime.today())
+today = datetime.combine(selected_date, datetime.min.time())
+
 # UI layout: subsite selection and max location inputs side by side
 subsite_options = df['SubSite'].unique()
 col1, col2 = st.columns([2, 1])
@@ -68,6 +72,17 @@ with col2:
             min_value=1, max_value=100, value=int(default_value), step=1,
             key=f"max_input_{subsite}"
         )
+
+# UI: Optional seed location selector
+location_options = df['Location'].unique()
+selected_location = st.selectbox("Optional: Select a specific location to use as seed", options=["" ] + list(location_options))
+
+# UI: Flexible quota sliders
+st.sidebar.header("Adjust ABC Quotas (must total 100%)")
+a_pct = st.sidebar.slider("% A", 0, 100, 10)
+b_pct = st.sidebar.slider("% B", 0, 100 - a_pct, 15)
+c_pct = 100 - a_pct - b_pct
+st.sidebar.markdown(f"**% C:** {c_pct}%")
 
 # Filter Excel data based on SubSite selection
 if selected_subsites:
