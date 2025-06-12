@@ -21,6 +21,9 @@ if uploaded_file is not None:
         st.success("✅ File uploaded successfully!")
         st.write("📂 Loading and processing ABC classification data...")
         df = pd.read_excel(uploaded_file, sheet_name=sheet_name)
+        xl = pd.ExcelFile(uploaded_file)
+        st.write("📄 Available sheet names:", xl.sheet_names)
+        st.stop()
     except Exception as e:
         st.error("❌ Error reading the Excel file. Please check the sheet name or file format.")
         st.stop()
