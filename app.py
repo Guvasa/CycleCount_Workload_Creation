@@ -22,7 +22,7 @@ if uploaded_file is not None:
         st.write("📂 Loading and processing ABC classification data...")
         df = pd.read_excel(uploaded_file, sheet_name=sheet_name)
     except Exception as e:
-        st.error("❌ Error reading the Excel file. Please check the sheet name or file format.")
+        st.error("❌ Error reading the Excel file. Please check the sheet name or file format.", e)
         st.stop()
 else:
     st.warning("Please upload the required Excel file to continue.")
