@@ -8,31 +8,20 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from datetime import datetime
 from mpl_toolkits.mplot3d import Axes3D
+import seaborn as sns
+from sklearn.preprocessing import MinMaxScaler
+import os
 
-# Load dataset
-df = pd.read_csv("normalized_data_with_ABC_classification.csv", delimiter=',', encoding='latin1')
+# Load dataset from Excel and normalize ABC Classification
+file_path = r"C:\Mis documentos\KARDEX\CycleCount-DataGatering.xlsm"
+sheet_name = "CurrentLocationStatusT_outcome"
+if not os.path.exists(file_path):
+    st.error(f"❌ File not found: {file_path}")
+else:
+    st.success("✅ File found.")
 
-# Static dictionary of MaxLocations per SubSite
-default_max_locations = {
-    "CALIDAD Location": 1,
-    "CHIHUAHUA": 1,
-    "Distribution Center (DC)": 33,
-    "Ingeniería de Servicio MTY": 1,
-    "Integración 2.0": 1,
-    "MTY Qality Assurance": 1,
-    "MTY. BRANCH": 13,
-    "MTY. BRANCH - RM": 3,
-    "Qro. branch": 3,
-    "Raw Material": 30,
-    "Ticket Express": 4,
-    "TIJ Quality Assurance": 1,
-    "Tijuana branch": 4,
-    "URUAPAN - APEAM": 1
-}
-
-# UI: Date input with default to today
-selected_date = st.date_input("Select today's date", value=datetime.today())
-today = datetime.combine(selected_date, datetime.min.time())
+st.write("📂 Loading and processing ABC classification data...")
+df = pd.read_excel(file_path, sheet_name=sheet_name)
 
 # UI layout: subsite selection and max location inputs side by side
 subsite_options = df['SubSite'].unique()
@@ -44,31 +33,58 @@ with col1:
 with col2:
     subsite_max_location_input = {}
     for subsite in selected_subsites:
-        default_value = default_max_locations.get(subsite, 5)
+        default_value = {
+            "CALIDAD Location": 1, "CHIHUAHUA": 1, "Distribution Center (DC)": 33,
+            "Ingeniería de Servicio MTY": 1, "Integración 2.0": 1, "MTY Qality Assurance": 1,
+            "MTY. BRANCH": 13, "MTY. BRANCH - RM": 3, "Qro. branch": 3, "Raw Material": 30,
+            "Ticket Express": 4, "TIJ Quality Assurance": 1, "Tijuana branch": 4, "URUAPAN - APEAM": 1
+        }.get(subsite, 5)
         subsite_max_location_input[subsite] = st.number_input(
             f"Max for {subsite[:15] + ('...' if len(subsite) > 15 else '')}",
-            min_value=1,
-            max_value=100,
-            value=int(default_value),
-            step=1,
+            min_value=1, max_value=100, value=int(default_value), step=1,
             key=f"max_input_{subsite}"
         )
 
-# UI: Optional seed location selector
-location_options = df['Location'].unique()
-selected_location = st.selectbox("Optional: Select a specific location to use as seed", options=["" ] + list(location_options))
+# Filter Excel data based on SubSite selection
+if selected_subsites:
+    df = df[df['SubSite'].isin(selected_subsites)]
 
-# UI: Flexible quota sliders
-st.sidebar.header("Adjust ABC Quotas (must total 100%)")
-a_pct = st.sidebar.slider("% A", 0, 100, 10)
-b_pct = st.sidebar.slider("% B", 0, 100 - a_pct, 15)
-c_pct = 100 - a_pct - b_pct
-st.sidebar.markdown(f"**% C:** {c_pct}%")
+# Normalize ABC data
+columns_to_normalize = ["AVGPrice", "Transactions", "AgeWeight"]
+df["AVGPrice"] = pd.to_numeric(df["AVGPrice"], errors="coerce")
+df[columns_to_normalize] = df[columns_to_normalize].fillna(0)
 
-# Convert date and calculate days since last count
-#df['LastCount_Date'] = pd.to_datetime(df['LastCount_Date'], dayfirst=True, errors='coerce')
+# Plot distributions AFTER normalization
+st.write("📊 Plotting distributions after normalization...")
+plt.figure(figsize=(12, 5))
+scaler = MinMaxScaler()
+norm_data = scaler.fit_transform(df[columns_to_normalize])
+for i, col in enumerate(columns_to_normalize):
+    df[f"Norm_{col}"] = norm_data[:, i]
+    plt.subplot(1, 3, i + 1)
+    sns.histplot(df[f"Norm_{col}"], bins=30, kde=True)
+    plt.title(f"{col} - Normalized")
+plt.tight_layout()
+st.pyplot(plt.gcf())
+
+# Weighted Total Score and Classification
+df["Total_Score"] = (
+    df["Norm_AVGPrice"] * 0.45 +
+    df["Norm_Transactions"] * 0.35 +
+    df["Norm_AgeWeight"] * 0.20
+)
+df = df.sort_values(by="Total_Score", ascending=False).reset_index(drop=True)
+n = len(df)
+df["Classification"] = "C"
+df.loc[:int(n*0.10)-1, "Classification"] = "A"
+df.loc[int(n*0.10):int(n*0.25)-1, "Classification"] = "B"
+
+# Format LastCount_Date
 df['LastCount_Date'] = pd.to_datetime(df['LastCount_Date'].astype(str).str.strip(), dayfirst=True, errors='coerce')
-df['DaysSinceLastCount'] = (today - df['LastCount_Date']).dt.days
+df['DaysSinceLastCount'] = (datetime.combine(st.session_state.get("selected_date", datetime.today()), datetime.min.time()) - df['LastCount_Date']).dt.days
+
+# Save classified CSV
+df.to_csv("normalized_data_with_ABC_classification.csv", index=False)
 
 # Enhanced classification rules with frequency limits
 def able_to_be_counted(row):
