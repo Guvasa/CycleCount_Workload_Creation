@@ -11,21 +11,37 @@ from mpl_toolkits.mplot3d import Axes3D
 import seaborn as sns
 from sklearn.preprocessing import MinMaxScaler
 import os
+import io
 
 st.subheader("📤 Upload Cycle Count Excel File")
 uploaded_file = st.file_uploader("Please upload the 'CycleCount-DataGatering.xlsm' file", type=["xlsx"])
 
+st.subheader("📤 Upload Cycle Count Excel File")
+uploaded_file = st.file_uploader("Please upload the 'CycleCount-DataGatering.xlsx' file", type=["xlsx"])
+
 if uploaded_file is not None:
-    sheet_name = "CurrentLocationStatusT_outcome"
     try:
         st.success("✅ File uploaded successfully!")
         st.write("📂 Loading and processing ABC classification data...")
-        df = pd.read_excel(uploaded_file, sheet_name=sheet_name)
-        xl = pd.ExcelFile(uploaded_file)
+
+        # Read content once into memory
+        file_bytes = uploaded_file.read()
+        excel_io = io.BytesIO(file_bytes)
+
+        # List available sheet names
+        xl = pd.ExcelFile(excel_io)
         st.write("📄 Available sheet names:", xl.sheet_names)
-        st.stop()
+
+        # Reset the buffer to re-read
+        excel_io.seek(0)
+        sheet_name = "CurrentLocationStatusT_outcome"
+        df = pd.read_excel(excel_io, sheet_name=sheet_name)
+
+        st.success(f"✅ Sheet '{sheet_name}' loaded successfully!")
+
     except Exception as e:
-        st.error("❌ Error reading the Excel file. Please check the sheet name or file format.")
+        st.error("❌ Error reading the Excel file. Please check the sheet name or format.")
+        st.exception(e)
         st.stop()
 else:
     st.warning("Please upload the required Excel file to continue.")
