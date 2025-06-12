@@ -135,7 +135,7 @@ if st.button("Clasificar ABC"):
     )
 
 # Format LastCount_Date
-df['LastCount_Date'] = pd.to_datetime(df['LastCount_Date'].astype(str).str.strip(), dayfirst=True, errors='coerce')
+#df['LastCount_Date'] = pd.to_datetime(df['LastCount_Date'].astype(str).str.strip(), dayfirst=True, errors='coerce')
 df['DaysSinceLastCount'] = (datetime.combine(st.session_state.get("selected_date", datetime.today()), datetime.min.time()) - df['LastCount_Date']).dt.days
 
 # Save classified CSV
