@@ -13,15 +13,16 @@ from sklearn.preprocessing import MinMaxScaler
 import os
 
 st.subheader("📤 Upload Cycle Count Excel File")
-uploaded_file = st.file_uploader("Please upload the 'CycleCount-DataGatering.xlsm' file", type=["xlsm"])
+uploaded_file = st.file_uploader("Please upload the 'CycleCount-DataGatering.xlsm' file", type=["xlsx"])
 
 if uploaded_file is not None:
+    sheet_name = "CurrentLocationStatusT_outcome"
     try:
-        xl = pd.ExcelFile(uploaded_file)
-        st.write("📄 Available sheet names:", xl.name)
-        st.stop()
+        st.success("✅ File uploaded successfully!")
+        st.write("📂 Loading and processing ABC classification data...")
+        df = pd.read_excel(uploaded_file, sheet_name=sheet_name)
     except Exception as e:
-        st.error("❌ Failed to open Excel file.")
+        st.error("❌ Error reading the Excel file. Please check the sheet name or file format.")
         st.stop()
 else:
     st.warning("Please upload the required Excel file to continue.")
