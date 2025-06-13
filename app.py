@@ -37,7 +37,7 @@ if uploaded_file is not None:
         sheet_name = "CurrentLocationStatusT_outcome"
         df = pd.read_excel(excel_io, sheet_name=sheet_name)
 
-        st.success(f"✅ Sheet '{sheet_name}' loaded successfully!")
+        #st.success(f"✅ Sheet '{sheet_name}' loaded successfully!")
 
     except Exception as e:
         st.error("❌ Error reading the Excel file. Please check the sheet name or format.")
