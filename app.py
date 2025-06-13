@@ -103,6 +103,8 @@ upper = Q3 + 1.5 * IQR
 df["AVGPrice"] = np.where(df["AVGPrice"] < lower, lower, df["AVGPrice"])
 df["AVGPrice"] = np.where(df["AVGPrice"] > upper, upper, df["AVGPrice"])
 
+st.write("⚖ Normalizing data...")
+
 # Plot distributions AFTER normalization
 st.write("📊 Plotting distributions after normalization...")
 plt.figure(figsize=(12, 5))
