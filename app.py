@@ -22,7 +22,7 @@ uploaded_file = st.file_uploader("Please upload the 'CycleCount-DataGatering.xls
 if uploaded_file is not None:
     try:
         st.success("✅ File uploaded successfully!")
-        st.write("📂 Loading and processing ABC classification data...")
+        #st.write("📂 Loading and processing ABC classification data...")
 
         # Read content once into memory
         file_bytes = uploaded_file.read()
@@ -92,6 +92,8 @@ if selected_subsites:
 columns_to_normalize = ["AVGPrice", "Transactions", "AgeWeight"]
 df["AVGPrice"] = pd.to_numeric(df["AVGPrice"], errors="coerce")
 df[columns_to_normalize] = df[columns_to_normalize].fillna(0)
+
+st.write("📂 Loading and processing ABC classification data...")
 
 # Handle outliers for AVGPrice
 st.write("⚠️ Handling outliers in AVGPrice...")
