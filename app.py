@@ -29,8 +29,8 @@ if uploaded_file is not None:
         excel_io = io.BytesIO(file_bytes)
 
         # List available sheet names
-        xl = pd.ExcelFile(excel_io)
-        st.write("📄 Available sheet names:", xl.sheet_names)
+        #xl = pd.ExcelFile(excel_io)
+        #st.write("📄 Available sheet names:", xl.sheet_names)
 
         # Reset the buffer to re-read
         excel_io.seek(0)
@@ -92,6 +92,16 @@ if selected_subsites:
 columns_to_normalize = ["AVGPrice", "Transactions", "AgeWeight"]
 df["AVGPrice"] = pd.to_numeric(df["AVGPrice"], errors="coerce")
 df[columns_to_normalize] = df[columns_to_normalize].fillna(0)
+
+# Handle outliers for AVGPrice
+st.write("⚠️ Handling outliers in AVGPrice...")
+Q1 = df["AVGPrice"].quantile(0.25)
+Q3 = df["AVGPrice"].quantile(0.75)
+IQR = Q3 - Q1
+lower = Q1 - 1.5 * IQR
+upper = Q3 + 1.5 * IQR
+df["AVGPrice"] = np.where(df["AVGPrice"] < lower, lower, df["AVGPrice"])
+df["AVGPrice"] = np.where(df["AVGPrice"] > upper, upper, df["AVGPrice"])
 
 # Plot distributions AFTER normalization
 st.write("📊 Plotting distributions after normalization...")
