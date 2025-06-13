@@ -128,17 +128,17 @@ df["Classification"] = "C"
 df.loc[:int(n*0.10)-1, "Classification"] = "A"
 df.loc[int(n*0.10):int(n*0.25)-1, "Classification"] = "B"
 
-# Botón para descargar solo la clasificación ABC
+# Download Button - ABC classification
 st.markdown("---")
-st.subheader("📥 Descargar Clasificación ABC")
+st.subheader("📥 Download - ABC Classification")
 
-if st.button("Clasificar ABC"):
+if st.button("Enable download"):
     abc_export = df.copy()
     abc_export = abc_export[['Location', 'Sitio', 'SubSite', 'LastCount_Date', 'AVGPrice', 'Transactions', 'Norm_AVGPrice', 'Norm_Transactions', 'Norm_AgeWeight', 'Classification', 'Total_Score']]
     #st.dataframe(abc_export)
 
     st.download_button(
-        "⬇️ Descargar CSV de Clasificación ABC",
+        "⬇️ Download CSV File - ABC Classification",
         abc_export.to_csv(index=False),
         file_name="abc_classification.csv",
         mime="text/csv"
