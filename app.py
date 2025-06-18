@@ -23,9 +23,6 @@ if uploaded_file is not None:
     try:
         st.success("✅ File uploaded successfully!")
         
-        latest_date = df['LastCount_Date'].max()
-        st.write(f"📅 Latest LastCount_Date: {latest_date.strftime('%d/%m/%Y')}")
-        
         #st.write("📂 Loading and processing ABC classification data...")
 
         # Read content once into memory
@@ -40,6 +37,9 @@ if uploaded_file is not None:
         excel_io.seek(0)
         sheet_name = "CurrentLocationStatusT_outcome"
         df = pd.read_excel(excel_io, sheet_name=sheet_name)
+        
+        latest_date = df['LastCount_Date'].max()
+        st.write(f"📅 Latest LastCount_Date: {latest_date.strftime('%d/%m/%Y')}")
 
         #st.success(f"✅ Sheet '{sheet_name}' loaded successfully!")
 
