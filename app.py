@@ -22,6 +22,10 @@ uploaded_file = st.file_uploader("Please upload the 'CycleCount-DataGatering.xls
 if uploaded_file is not None:
     try:
         st.success("✅ File uploaded successfully!")
+        
+        latest_date = df['LastCount_Date'].max()
+        st.write(f"📅 Latest LastCount_Date: {latest_date.strftime('%d/%m/%Y')}")
+        
         #st.write("📂 Loading and processing ABC classification data...")
 
         # Read content once into memory
@@ -195,9 +199,6 @@ if st.button("Run"):
             seed_row = full_group_df[full_group_df['Location'] == selected_location].iloc[0]
         else:
             seed_row = full_group_df.sort_values(by='LastCount_Date', ascending=False).iloc[0]
-
-        latest_date = df['LastCount_Date'].max()
-        st.write(f"📅 Latest LastCount_Date: {latest_date.strftime('%d/%m/%Y')}")
 
         seed_coords = [[seed_row['X'], seed_row['Y'], seed_row['Z']]]
         st.write(f"📍 Chosen seed for {seed_row['Location']}: {[int(seed_row['X']), int(seed_row['Y']), int(seed_row['Z'])]}")
