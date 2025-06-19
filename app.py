@@ -52,7 +52,7 @@ else:
     st.stop()
 
 # UI: Date input with default to today
-selected_date = st.date_input("Select today's date", value=datetime.today())
+selected_date = st.date_input("Select the cycle count date:", value=datetime.today())
 today = datetime.combine(selected_date, datetime.min.time())
 
 # UI layout: subsite selection and max location inputs side by side
