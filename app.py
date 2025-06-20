@@ -100,7 +100,7 @@ df[columns_to_normalize] = df[columns_to_normalize].fillna(0)
 st.write("📂 Loading and processing ABC classification data...")
 
 # Handle outliers for AVGPrice
-st.write("⚠️ Handling outliers in AVGPrice...")
+st.write("    ⚠️ Handling outliers in AVGPrice...")
 Q1 = df["AVGPrice"].quantile(0.25)
 Q3 = df["AVGPrice"].quantile(0.75)
 IQR = Q3 - Q1
@@ -109,7 +109,7 @@ upper = Q3 + 1.5 * IQR
 df["AVGPrice"] = np.where(df["AVGPrice"] < lower, lower, df["AVGPrice"])
 df["AVGPrice"] = np.where(df["AVGPrice"] > upper, upper, df["AVGPrice"])
 
-st.write("⚖ Normalizing data...")
+st.write("    ⚖ Normalizing data...")
 
 # Plot distributions AFTER normalization
 st.write("📊 Plotting distributions after normalization...")
