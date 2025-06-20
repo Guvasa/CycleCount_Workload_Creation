@@ -79,7 +79,7 @@ with col2:
 
 # UI: Optional seed location selector
 location_options = df['Location'].unique()
-selected_location = st.selectbox("Optional: Select a specific location to use as seed", options=["" ] + list(location_options))
+selected_location = st.selectbox("Optional: Select a specific location to use as a seed", options=["" ] + list(location_options))
 
 # UI: Flexible quota sliders
 st.sidebar.header("Adjust ABC Quotas (must total 100%)")
