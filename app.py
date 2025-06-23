@@ -143,11 +143,20 @@ df["Total_Score"] = (
     df["Norm_AgeWeight"] * w_age
 )
 
+# ABC Classification
+st.sidebar.header("ABC Classification Thresholds (must total 100%)")
+
+a_threshold = st.sidebar.slider("Top % for A", 0, 100, 10, step=1)
+b_threshold = st.sidebar.slider("Next % for B", 0, 100 - a_threshold, 15, step=1)
+c_threshold = 100 - a_threshold - b_threshold
+
+st.sidebar.markdown(f"**Remaining % for C:** {c_threshold}%")
+
 df = df.sort_values(by="Total_Score", ascending=False).reset_index(drop=True)
 n = len(df)
 df["Classification"] = "C"
-df.loc[:int(n*0.10)-1, "Classification"] = "A"
-df.loc[int(n*0.10):int(n*0.25)-1, "Classification"] = "B"
+df.loc[:int(n * a_threshold / 100) - 1, "Classification"] = "A"
+df.loc[int(n * a_threshold / 100):int(n * (a_threshold + b_threshold) / 100) - 1, "Classification"] = "B"
 
 # Download Button - ABC classification
 st.markdown("---")
