@@ -128,11 +128,21 @@ plt.tight_layout()
 st.pyplot(plt.gcf())
 
 # Weighted Total Score and Classification
+st.sidebar.header("Weights for Total Score (must total 1.0)")
+
+w_price = st.sidebar.slider("Weight: AVGPrice", 0.0, 1.0, 0.45, step=0.01)
+w_txn = st.sidebar.slider("Weight: Transactions", 0.0, 1.0 - w_price, 0.35, step=0.01)
+w_age = round(1.0 - w_price - w_txn, 2)
+
+# Show third value (non-editable)
+st.sidebar.markdown(f"**Weight: AgeWeight** = {w_age:.2f}")
+
 df["Total_Score"] = (
-    df["Norm_AVGPrice"] * 0.45 +
-    df["Norm_Transactions"] * 0.35 +
-    df["Norm_AgeWeight"] * 0.20
+    df["Norm_AVGPrice"] * w_price +
+    df["Norm_Transactions"] * w_txn +
+    df["Norm_AgeWeight"] * w_age
 )
+
 df = df.sort_values(by="Total_Score", ascending=False).reset_index(drop=True)
 n = len(df)
 df["Classification"] = "C"
