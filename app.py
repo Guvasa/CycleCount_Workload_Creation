@@ -100,7 +100,8 @@ df[columns_to_normalize] = df[columns_to_normalize].fillna(0)
 st.write("📂 Loading and processing ABC classification data...")
 
 # Handle outliers for AVGPrice
-st.write("    ⚠️ Handling outliers in AVGPrice...")
+#st.write("    ⚠️ Handling outliers in AVGPrice...")
+st.markdown("<span style='padding-left: 2em;'>⚠️ Handling outliers in AVGPrice...</span>", unsafe_allow_html=True)
 Q1 = df["AVGPrice"].quantile(0.25)
 Q3 = df["AVGPrice"].quantile(0.75)
 IQR = Q3 - Q1
