@@ -184,11 +184,11 @@ df['DaysSinceLastCount'] = (datetime.combine(st.session_state.get("selected_date
 # Enhanced classification rules with frequency limits
 def able_to_be_counted(row):
     if (row['Classification'] == 'A') and (row['Times_Counted_CurrentQtr'] < 3):
-        return row['DaysSinceLastCount'] >= 26
+        return row['DaysSinceLastCount'] >= 28
     elif (row['Classification'] == 'B') and (row['Times_Counted_CurrentQtr'] < 2):
-        return row['DaysSinceLastCount'] >= 40
-    elif (row['Classification'] == 'C') and (row['Times_Counted_CurrentQtr'] < 1):
         return row['DaysSinceLastCount'] >= 50
+    elif (row['Classification'] == 'C') and (row['Times_Counted_CurrentQtr'] < 1):
+        return row['DaysSinceLastCount'] >= 60
     return False
 
 df['AbleToBeCounted'] = df.apply(able_to_be_counted, axis=1)
