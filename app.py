@@ -130,11 +130,9 @@ st.pyplot(plt.gcf())
 
 # Weighted Total Score and Classification
 st.sidebar.header("Weights for Total Score (must total 1.0)")
-
 w_price = st.sidebar.slider("Weight: AVGPrice", 0.0, 1.0, 0.45, step=0.01)
 w_txn = st.sidebar.slider("Weight: Transactions", 0.0, 1.0 - w_price, 0.35, step=0.01)
 w_age = round(1.0 - w_price - w_txn, 2)
-
 # Show third value (non-editable)
 st.sidebar.markdown(f"**Weight: AgeWeight** = {w_age:.2f}")
 
@@ -165,7 +163,7 @@ if use_ml_classification:
     cluster_means = df.groupby("Cluster")["Total_Score"].mean().sort_values(ascending=False)
     cluster_to_abc = {cluster: label for cluster, label in zip(cluster_means.index, ["A", "B", "C"])}
     df["Classification"] = df["Cluster"].map(cluster_to_abc)
-    df.drop(columns=["Cluster"], inplace=True)
+    #df.drop(columns=["Cluster"], inplace=True)
 else:
     st.write("📊 Using manual ABC thresholds...")
     df = df.sort_values(by="Total_Score", ascending=False).reset_index(drop=True)
@@ -204,7 +202,6 @@ if st.button("Enable download"):
     abc_export = df.copy()
     abc_export = abc_export[['Location', 'Sitio', 'SubSite', 'LastCount_Date', 'AVGPrice', 'Transactions', 'Norm_AVGPrice', 'Norm_Transactions', 'Norm_AgeWeight', 'Classification', 'Total_Score', 'Cluster']]
     #st.dataframe(abc_export)
-
     st.download_button(
         "⬇️ Download CSV File - ABC Classification",
         abc_export.to_csv(index=False),
