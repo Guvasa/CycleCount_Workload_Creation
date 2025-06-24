@@ -179,21 +179,45 @@ else:
 
 if use_ml_classification:
     st.subheader("🎯 ABC Cluster Visualization (K-Means)")
-
-    # 2D projection using two selected features
-    fig2d, ax2d = plt.subplots(figsize=(8, 6))
-    scatter = ax2d.scatter(
-        df["Norm_AVGPrice"], df["Norm_Transactions"],
-        c=df["Classification"].map({"A": 0, "B": 1, "C": 2}),
-        cmap="Set1", alpha=0.7, edgecolors="k"
+    # Toggle: Select type of cluster visualization
+    plot_option = st.radio(
+        "📌 Select Cluster Plot Type:",
+        options=["3D Cluster Plot", "2D PCA Projection"],
+        index=0,
+        horizontal=True
     )
+    if plot_option == "3D Cluster Plot":
+        fig = plt.figure(figsize=(10, 7))
+        ax = fig.add_subplot(111, projection='3d')
+        scatter = ax.scatter(
+            final_selection['Z'], final_selection['X'], final_selection['Y'],
+            c=final_selection['Cluster'], cmap='tab10'
+        )
+        ax.set_title("3D Clustered Daily Workload")
+        ax.set_xlabel("Z (Aisle)")
+        ax.set_ylabel("X (Module)")
+        ax.set_zlabel("Y (Vertical Height)")
 
-    ax2d.set_xlabel("Normalized AVGPrice")
-    ax2d.set_ylabel("Normalized Transactions")
-    ax2d.set_title("ABC Clusters (K-Means)")
-    ax2d.grid(True)
-    st.pyplot(fig2d)
+        for _, row in final_selection.iterrows():
+            ax.text(row['Z'], row['X'], row['Y'], str(row['Location']), fontsize=8)
 
+        st.pyplot(fig)
+
+    elif plot_option == "2D PCA Projection":
+        st.write("🔍 PCA Projection based on X, Y, Z coordinates")
+        from sklearn.decomposition import PCA
+        pca = PCA(n_components=2)
+        pca_data = pca.fit_transform(final_selection[['X', 'Y', 'Z']])
+        fig_pca, ax_pca = plt.subplots(figsize=(8, 6))
+        ax_pca.scatter(
+            pca_data[:, 0], pca_data[:, 1],
+            c=final_selection['Cluster'], cmap='tab10', alpha=0.7, edgecolors='k'
+        )
+        ax_pca.set_title("2D PCA Projection of Clustered Locations")
+        ax_pca.set_xlabel("PC1")
+        ax_pca.set_ylabel("PC2")
+        st.pyplot(fig_pca)
+    
 # Download Button - ABC classification
 st.markdown("---")
 st.subheader("📥 Download - ABC Classification")
