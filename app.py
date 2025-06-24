@@ -12,6 +12,7 @@ import seaborn as sns
 from sklearn.preprocessing import MinMaxScaler
 import os
 import io
+import plotly.express as px
 
 ##st.subheader("📤 Upload Cycle Count Excel File")
 ##uploaded_file = st.file_uploader("Please upload the 'CycleCount-DataGatering.xlsm' file", type=["xlsx"])
@@ -187,35 +188,48 @@ if use_ml_classification:
         horizontal=True
     )
     if plot_option == "3D - Full Features":
-        fig_3d = plt.figure(figsize=(10, 7))
-        ax3d = fig_3d.add_subplot(111, projection='3d')
-        scatter = ax3d.scatter(
-            df["Norm_AVGPrice"], df["Norm_Transactions"], df["Norm_AgeWeight"],
-            c=df["Classification"].map({"A": 0, "B": 1, "C": 2}),
-            cmap="Set1", alpha=0.7, edgecolors="k"
-        )
-        ax3d.set_xlabel("Norm_AVGPrice")
-        ax3d.set_ylabel("Norm_Transactions")
-        ax3d.set_zlabel("Norm_AgeWeight")
-        ax3d.set_title("3D ABC Clusters (K-Means)")
-        st.pyplot(fig_3d)
+    st.write("🧭 Interactive 3D Cluster Visualization")
+
+    fig_3d = px.scatter_3d(
+        df,
+        x="Norm_AVGPrice", y="Norm_Transactions", z="Norm_AgeWeight",
+        color="Classification",
+        symbol="Classification",
+        hover_data={
+            "Location": True,
+            "Norm_AVGPrice": ":.2f",
+            "Total_Score": ":.3f",
+            "Classification": True
+        },
+        color_discrete_map={"A": "red", "B": "orange", "C": "green"},
+        title="3D ABC Clusters (K-Means)"
+    )
+    fig_3d.update_traces(marker=dict(size=5))
+    st.plotly_chart(fig_3d, use_container_width=True)
 
     elif plot_option == "2D - PCA Projection":
-        from sklearn.decomposition import PCA
-        pca = PCA(n_components=2)
-        pca_proj = pca.fit_transform(df[["Norm_AVGPrice", "Norm_Transactions", "Norm_AgeWeight"]])
+    from sklearn.decomposition import PCA
+    pca = PCA(n_components=2)
+    pca_proj = pca.fit_transform(df[["Norm_AVGPrice", "Norm_Transactions", "Norm_AgeWeight"]])
+    df["PC1"] = pca_proj[:, 0]
+    df["PC2"] = pca_proj[:, 1]
 
-        fig_pca, ax_pca = plt.subplots(figsize=(8, 6))
-        ax_pca.scatter(
-            pca_proj[:, 0], pca_proj[:, 1],
-            c=df["Classification"].map({"A": 0, "B": 1, "C": 2}),
-            cmap="Set1", alpha=0.7, edgecolors="k"
-        )
-        ax_pca.set_title("ABC Clusters (PCA Projection)")
-        ax_pca.set_xlabel("PC1")
-        ax_pca.set_ylabel("PC2")
-        ax_pca.grid(True)
-        st.pyplot(fig_pca)
+    fig_2d = px.scatter(
+        df,
+        x="PC1", y="PC2",
+        color="Classification",
+        symbol="Classification",
+        hover_data={
+            "Location": True,
+            "Norm_AVGPrice": ":.2f",
+            "Total_Score": ":.3f",
+            "Classification": True
+        },
+        color_discrete_map={"A": "red", "B": "orange", "C": "green"},
+        title="ABC Clusters (PCA Projection)"
+    )
+    fig_2d.update_traces(marker=dict(size=7))
+    st.plotly_chart(fig_2d, use_container_width=True)
     
 # Download Button - ABC classification
 st.markdown("---")
