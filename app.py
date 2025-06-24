@@ -182,40 +182,39 @@ if use_ml_classification:
     # Toggle: Select type of cluster visualization
     plot_option = st.radio(
         "📌 Select Cluster Plot Type:",
-        options=["3D Cluster Plot", "2D PCA Projection"],
+        options=["3D - Full Features", "2D - PCA Projection"],
         index=0,
         horizontal=True
     )
-    if plot_option == "3D Cluster Plot":
-        fig = plt.figure(figsize=(10, 7))
-        ax = fig.add_subplot(111, projection='3d')
-        scatter = ax.scatter(
-            final_selection['Z'], final_selection['X'], final_selection['Y'],
-            c=final_selection['Cluster'], cmap='tab10'
+    if plot_option == "3D - Full Features":
+        fig_3d = plt.figure(figsize=(10, 7))
+        ax3d = fig_3d.add_subplot(111, projection='3d')
+        scatter = ax3d.scatter(
+            df["Norm_AVGPrice"], df["Norm_Transactions"], df["Norm_AgeWeight"],
+            c=df["Classification"].map({"A": 0, "B": 1, "C": 2}),
+            cmap="Set1", alpha=0.7, edgecolors="k"
         )
-        ax.set_title("3D Clustered Daily Workload")
-        ax.set_xlabel("Z (Aisle)")
-        ax.set_ylabel("X (Module)")
-        ax.set_zlabel("Y (Vertical Height)")
+        ax3d.set_xlabel("Norm_AVGPrice")
+        ax3d.set_ylabel("Norm_Transactions")
+        ax3d.set_zlabel("Norm_AgeWeight")
+        ax3d.set_title("3D ABC Clusters (K-Means)")
+        st.pyplot(fig_3d)
 
-        for _, row in final_selection.iterrows():
-            ax.text(row['Z'], row['X'], row['Y'], str(row['Location']), fontsize=8)
-
-        st.pyplot(fig)
-
-    elif plot_option == "2D PCA Projection":
-        st.write("🔍 PCA Projection based on X, Y, Z coordinates")
+    elif plot_option == "2D - PCA Projection":
         from sklearn.decomposition import PCA
         pca = PCA(n_components=2)
-        pca_data = pca.fit_transform(final_selection[['X', 'Y', 'Z']])
+        pca_proj = pca.fit_transform(df[["Norm_AVGPrice", "Norm_Transactions", "Norm_AgeWeight"]])
+
         fig_pca, ax_pca = plt.subplots(figsize=(8, 6))
         ax_pca.scatter(
-            pca_data[:, 0], pca_data[:, 1],
-            c=final_selection['Cluster'], cmap='tab10', alpha=0.7, edgecolors='k'
+            pca_proj[:, 0], pca_proj[:, 1],
+            c=df["Classification"].map({"A": 0, "B": 1, "C": 2}),
+            cmap="Set1", alpha=0.7, edgecolors="k"
         )
-        ax_pca.set_title("2D PCA Projection of Clustered Locations")
+        ax_pca.set_title("ABC Clusters (PCA Projection)")
         ax_pca.set_xlabel("PC1")
         ax_pca.set_ylabel("PC2")
+        ax_pca.grid(True)
         st.pyplot(fig_pca)
     
 # Download Button - ABC classification
