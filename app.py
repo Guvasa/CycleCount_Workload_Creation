@@ -110,9 +110,10 @@ upper = Q3 + 1.5 * IQR
 df["AVGPrice"] = np.where(df["AVGPrice"] < lower, lower, df["AVGPrice"])
 df["AVGPrice"] = np.where(df["AVGPrice"] > upper, upper, df["AVGPrice"])
 
-#st.write("\u2003\u2003⚖ Normalizing data...")
-st.markdown("<span style='padding-left: 2em;'>⚖ Normalizing data...</span>", unsafe_allow_html=True)
+st.sidebar.subheader("🧠 ABC Classification Method")
+use_ml_classification = st.sidebar.checkbox("Use ML-based Clustering (K-Means)", value=False)
 
+st.markdown("<span style='padding-left: 2em;'>⚖ Normalizing data...</span>", unsafe_allow_html=True)
 
 # Plot distributions AFTER normalization
 st.write("📊 Plotting distributions after normalization...")
@@ -145,18 +146,55 @@ df["Total_Score"] = (
 
 # ABC Classification
 st.sidebar.header("ABC Classification Thresholds (must total 100%)")
+if not use_ml_classification:
+    st.sidebar.subheader("Manual ABC Thresholds")
+    a_threshold = st.sidebar.slider("Top % for A", 0, 100, 10, step=1)
+    b_threshold = st.sidebar.slider("Next % for B", 0, 100 - a_threshold, 15, step=1)
+    c_threshold = 100 - a_threshold - b_threshold
+    st.sidebar.markdown(f"**Remaining % for C:** {c_threshold}%")
 
-a_threshold = st.sidebar.slider("Top % for A", 0, 100, 10, step=1)
-b_threshold = st.sidebar.slider("Next % for B", 0, 100 - a_threshold, 15, step=1)
-c_threshold = 100 - a_threshold - b_threshold
+if use_ml_classification:
+    st.write("🤖 Using ML-based ABC classification...")
+    from sklearn.cluster import KMeans
 
-st.sidebar.markdown(f"**Remaining % for C:** {c_threshold}%")
+    features = df[["Norm_AVGPrice", "Norm_Transactions", "Norm_AgeWeight"]]
+    kmeans = KMeans(n_clusters=3, random_state=42)
+    df["Cluster"] = kmeans.fit_predict(features)
 
-df = df.sort_values(by="Total_Score", ascending=False).reset_index(drop=True)
-n = len(df)
-df["Classification"] = "C"
-df.loc[:int(n * a_threshold / 100) - 1, "Classification"] = "A"
-df.loc[int(n * a_threshold / 100):int(n * (a_threshold + b_threshold) / 100) - 1, "Classification"] = "B"
+    # Map clusters to ABC based on Total_Score average
+    cluster_means = df.groupby("Cluster")["Total_Score"].mean().sort_values(ascending=False)
+    cluster_to_abc = {cluster: label for cluster, label in zip(cluster_means.index, ["A", "B", "C"])}
+    df["Classification"] = df["Cluster"].map(cluster_to_abc)
+    df.drop(columns=["Cluster"], inplace=True)
+else:
+    st.write("📊 Using manual ABC thresholds...")
+    df = df.sort_values(by="Total_Score", ascending=False).reset_index(drop=True)
+    n = len(df)
+    df["Classification"] = "C"
+    df.loc[:int(n * a_threshold / 100) - 1, "Classification"] = "A"
+    df.loc[int(n * a_threshold / 100):int(n * (a_threshold + b_threshold) / 100) - 1, "Classification"] = "B"
+
+if use_ml_classification:
+    st.success("ABC Classification: ✅ ML-based (K-Means Clustering)")
+else:
+    st.success(f"ABC Classification: ✅ Manual ({a_threshold}% A, {b_threshold}% B, {c_threshold}% C)")
+
+if use_ml_classification:
+    st.subheader("🎯 ABC Cluster Visualization (K-Means)")
+
+    # 2D projection using two selected features
+    fig2d, ax2d = plt.subplots(figsize=(8, 6))
+    scatter = ax2d.scatter(
+        df["Norm_AVGPrice"], df["Norm_Transactions"],
+        c=df["Classification"].map({"A": 0, "B": 1, "C": 2}),
+        cmap="Set1", alpha=0.7, edgecolors="k"
+    )
+
+    ax2d.set_xlabel("Normalized AVGPrice")
+    ax2d.set_ylabel("Normalized Transactions")
+    ax2d.set_title("ABC Clusters (K-Means)")
+    ax2d.grid(True)
+    st.pyplot(fig2d)
 
 # Download Button - ABC classification
 st.markdown("---")
