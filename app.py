@@ -229,6 +229,25 @@ if use_ml_classification:
         )
         fig_2d.update_traces(marker=dict(size=7))
         st.plotly_chart(fig_2d, use_container_width=True)
+else:
+    st.write("🧭 Interactive 3D Cluster Visualization")
+
+    fig_3d = px.scatter_3d(
+        df,
+        x="Norm_AVGPrice", y="Norm_Transactions", z="Norm_AgeWeight",
+        color="Classification",
+        symbol="Classification",
+        hover_data={
+            "Location": True,
+            "Norm_AVGPrice": ":.2f",
+            "Total_Score": ":.3f",
+            "Classification": True
+        },
+        color_discrete_map={"A": "red", "B": "orange", "C": "green"},
+        title="3D ABC Clusters (K-Means)"
+    )
+    fig_3d.update_traces(marker=dict(size=5))
+    st.plotly_chart(fig_3d, use_container_width=True)
     
 # Download Button - ABC classification
 st.markdown("---")
