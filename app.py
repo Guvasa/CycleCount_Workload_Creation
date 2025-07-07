@@ -14,6 +14,9 @@ import os
 import io
 import plotly.express as px
 
+st.set_page_config(page_title="Smart Count Scheduler", layout="wide")
+st.title("🧠 Smart Count Scheduler")
+
 ##st.subheader("📤 Upload Cycle Count Excel File")
 ##uploaded_file = st.file_uploader("Please upload the 'CycleCount-DataGatering.xlsm' file", type=["xlsx"])
 
